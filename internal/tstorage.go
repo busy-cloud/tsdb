@@ -159,20 +159,25 @@ func init() {
 
 func parseTimeEx(tm string) (int64, error) {
 	//标准日期串
-	t, err := time.Parse(time.ANSIC, tm)
+	t, err := time.Parse(time.DateTime, tm)
 	if err == nil {
 		return t.UnixMilli(), nil
 	}
-
-	t, err = time.Parse(time.UnixDate, tm)
-	if err == nil {
-		return t.UnixMilli(), nil
-	}
-
-	t, err = time.Parse(time.RubyDate, tm)
-	if err == nil {
-		return t.UnixMilli(), nil
-	}
+	//
+	//t, err = time.Parse(time.ANSIC, tm)
+	//if err == nil {
+	//	return t.UnixMilli(), nil
+	//}
+	//
+	//t, err = time.Parse(time.UnixDate, tm)
+	//if err == nil {
+	//	return t.UnixMilli(), nil
+	//}
+	//
+	//t, err = time.Parse(time.RubyDate, tm)
+	//if err == nil {
+	//	return t.UnixMilli(), nil
+	//}
 
 	t, err = time.Parse(time.RFC3339, tm)
 	if err == nil {
