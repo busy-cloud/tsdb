@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	api.Register("GET", "device/:id/history/:point", deviceHistory)
+	api.Register("GET", "iot/device/:id/history/:point", deviceHistory)
 	api.Register("GET", "tsdb/device/:id/history/:point", deviceHistory)
 }
 
