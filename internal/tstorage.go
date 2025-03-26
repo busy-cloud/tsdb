@@ -66,7 +66,7 @@ func Query(metric, id string, field string, start, end, window, method string) (
 	if err != nil {
 		return nil, err
 	}
-	points, err := storage.Select(metric, []tstorage.Label{{"key", field}, {"id", id}}, s, e)
+	points, err := storage.Select(metric, []tstorage.Label{{"key", field}, {"id", id}}, s, e) //ms
 	if err != nil {
 		//无数据
 		if err == tstorage.ErrNoDataPoints {
@@ -165,7 +165,7 @@ func parseTimeEx(tm string) (int64, error) {
 	//标准日期串
 	t, err := time.Parse(time.DateTime, tm)
 	if err == nil {
-		return t.Unix(), nil
+		return t.UnixMilli(), nil
 	}
 	//
 	//t, err = time.Parse(time.ANSIC, tm)
@@ -185,14 +185,14 @@ func parseTimeEx(tm string) (int64, error) {
 
 	t, err = time.Parse(time.RFC3339, tm)
 	if err == nil {
-		return t.Unix(), nil
+		return t.UnixMilli(), nil
 	}
 
 	tt, err := parseTime(tm)
 	if err != nil {
 		return 0, err
 	}
-	return tt + time.Now().Unix(), nil
+	return tt + time.Now().UnixMilli(), nil
 }
 
 func parseTime(tm string) (int64, error) {
@@ -204,12 +204,13 @@ func parseTime(tm string) (int64, error) {
 	val, _ := strconv.ParseInt(ss[1], 10, 64)
 	switch ss[2] {
 	case "d":
-		val *= 24 * 60 * 60
+		val *= 24 * 60 * 60 * 1000
 	case "h":
-		val *= 60 * 60
+		val *= 60 * 60 * 1000
 	case "m":
-		val *= 60
+		val *= 60 * 1000
 	case "s":
+		val *= 1000
 	}
 	return val, nil
 }
