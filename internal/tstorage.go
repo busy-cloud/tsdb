@@ -17,10 +17,14 @@ type Point struct {
 var storage tstorage.Storage
 
 func Open() error {
-	tstorage.WithTimestampPrecision("ms")
+	//tstorage.WithTimestampPrecision("ms")
 
 	var options []tstorage.Option
-	options = append(options, tstorage.WithDataPath("tstorage"))
+	options = append(options,
+		tstorage.WithTimestampPrecision(tstorage.Seconds),
+		tstorage.WithRetention(time.Hour*24*366), //失效期1年，后续改配置文件
+		tstorage.WithDataPath("tstorage"),
+	)
 	//options = append(options, tstorage.WithRetention(time.Duration(retention)*time.Second))
 	//options = append(options, tstorage.WithPartitionDuration(time.Duration(partition)*time.Second))
 	//options = append(options, tstorage.WithPartitionDuration(opts.WriteTimeout*time.Second))
@@ -154,14 +158,14 @@ func last(points []*tstorage.DataPoint, start, window int64) []*Point {
 var timeReg *regexp.Regexp
 
 func init() {
-	timeReg = regexp.MustCompile(`^(-?\d+)(h|m|s)$`)
+	timeReg = regexp.MustCompile(`^(-?\d+)(d|h|m|s)$`)
 }
 
 func parseTimeEx(tm string) (int64, error) {
 	//标准日期串
 	t, err := time.Parse(time.DateTime, tm)
 	if err == nil {
-		return t.UnixMilli(), nil
+		return t.Unix(), nil
 	}
 	//
 	//t, err = time.Parse(time.ANSIC, tm)
@@ -181,14 +185,14 @@ func parseTimeEx(tm string) (int64, error) {
 
 	t, err = time.Parse(time.RFC3339, tm)
 	if err == nil {
-		return t.UnixMilli(), nil
+		return t.Unix(), nil
 	}
 
 	tt, err := parseTime(tm)
 	if err != nil {
 		return 0, err
 	}
-	return tt + time.Now().UnixMilli(), nil
+	return tt + time.Now().Unix(), nil
 }
 
 func parseTime(tm string) (int64, error) {
@@ -200,13 +204,12 @@ func parseTime(tm string) (int64, error) {
 	val, _ := strconv.ParseInt(ss[1], 10, 64)
 	switch ss[2] {
 	case "d":
-		val *= 24 * 60 * 60 * 1000
+		val *= 24 * 60 * 60
 	case "h":
-		val *= 60 * 60 * 1000
+		val *= 60 * 60
 	case "m":
-		val *= 60 * 1000
+		val *= 60
 	case "s":
-		val *= 1000
 	}
 	return val, nil
 }
