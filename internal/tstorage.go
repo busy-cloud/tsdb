@@ -2,6 +2,7 @@ package internal
 
 import (
 	"errors"
+	"github.com/busy-cloud/boat/config"
 	"github.com/nakabonne/tstorage"
 	"github.com/spf13/cast"
 	"regexp"
@@ -21,13 +22,11 @@ func Open() error {
 
 	var options []tstorage.Option
 	options = append(options,
-		tstorage.WithTimestampPrecision(tstorage.Seconds),
-		tstorage.WithRetention(time.Hour*24*366), //失效期1年，后续改配置文件
-		tstorage.WithDataPath("tstorage"),
+		tstorage.WithTimestampPrecision(tstorage.Seconds),                                      //精确到秒
+		tstorage.WithRetention(time.Hour*24*time.Duration(config.GetInt(MODULE, "retention"))), //失效期1年，后续改配置文件
+		tstorage.WithPartitionDuration(time.Hour*time.Duration(config.GetInt(MODULE, "partition"))),
+		tstorage.WithDataPath(config.GetString(MODULE, "path")),
 	)
-	//options = append(options, tstorage.WithRetention(time.Duration(retention)*time.Second))
-	//options = append(options, tstorage.WithPartitionDuration(time.Duration(partition)*time.Second))
-	//options = append(options, tstorage.WithPartitionDuration(opts.WriteTimeout*time.Second))
 
 	var err error
 	storage, err = tstorage.NewStorage(options...)
